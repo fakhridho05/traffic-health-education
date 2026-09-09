@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)/profile/data).data.role == 'admin';
+    }
+
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /modules/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /kuesioner/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /quiz/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /kuesioner_responses/{docId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    match /test_results/{docId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    match /offline_test_results/{docId} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+  }
+}
