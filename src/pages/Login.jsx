@@ -98,7 +98,7 @@ export default function Login() {
             />
             
             <div className="auth-forgot">
-              <Link to="#" className="auth-link" style={{fontWeight: 'normal', fontSize: '0.9rem', color: '#176c9c'}}>Lupa kata sandi?</Link>
+              <Link to="/lupa-password" className="auth-link" style={{fontWeight: 'normal', fontSize: '0.9rem', color: '#176c9c'}}>Lupa kata sandi?</Link>
             </div>
 
             <button type="submit" className="auth-btn" disabled={loading}>

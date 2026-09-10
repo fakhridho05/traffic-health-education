@@ -7,6 +7,7 @@ import DashboardLayout from './components/DashboardLayout';
 // Public & Normal User Pages
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import LupaPassword from './pages/LupaPassword';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import Edukasi from './pages/Edukasi';
@@ -70,6 +71,7 @@ function AppRoutes() {
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/lupa-password" element={<LupaPassword />} />
         <Route path="/seminar/:type" element={<PublicTest />} />
         <Route path="/register" element={<Register />} />
         <Route path="/lengkapi-profil" element={

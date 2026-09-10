@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword, 
   signInWithPopup, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  sendPasswordResetEmail 
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase';
@@ -98,6 +99,11 @@ export function AuthProvider({ children }) {
     setUserProfile((prev) => ({ ...prev, ...updated }));
   };
 
+  // Reset Password
+  const resetPassword = async (email) => {
+    await sendPasswordResetEmail(auth, email);
+  };
+
   // Logout
   const logout = async () => {
     await signOut(auth);
@@ -115,6 +121,7 @@ export function AuthProvider({ children }) {
       login, 
       loginWithGoogle, 
       logout, 
+      resetPassword,
       saveProfile,
       updateProfile,
       loadUserProfile
