@@ -32,6 +32,7 @@ const AdminKuesionerHasil = lazy(() => import('./pages/AdminKuesionerHasil'));
 const AdminQuiz = lazy(() => import('./pages/AdminQuiz'));
 const AdminQuizForm = lazy(() => import('./pages/AdminQuizForm'));
 const AdminTesHasil = lazy(() => import('./pages/AdminTesHasil'));
+const AdminPanduan = lazy(() => import('./pages/AdminPanduan'));
 
 // Loading Fallback Component
 const PageLoader = () => <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.2rem', color: '#888' }}>Memuat...</div>;
@@ -109,6 +110,7 @@ function AppRoutes() {
           <Route path="/admin/quiz/tambah" element={<AdminRoute><AdminQuizForm /></AdminRoute>} />
           <Route path="/admin/quiz/edit/:id" element={<AdminRoute><AdminQuizForm /></AdminRoute>} />
           <Route path="/admin/tes/hasil" element={<AdminRoute><AdminTesHasil /></AdminRoute>} />
+          <Route path="/admin/panduan" element={<AdminRoute><AdminPanduan /></AdminRoute>} />
         </Route>
 
         {/* Catch-all Not Found Route */}

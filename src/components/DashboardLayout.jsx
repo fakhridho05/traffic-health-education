@@ -66,6 +66,13 @@ export default function DashboardLayout() {
               >
                 ⭐ Admin Tes (Quiz)
               </Link>
+              <Link
+                to="/admin/panduan"
+                className={`sidebar-item ${location.pathname.includes('/admin/panduan') ? 'active' : ''}`}
+                style={{ marginTop: '8px', borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}
+              >
+                📖 Panduan Web
+              </Link>
             </>
           )}
           <button
@@ -156,6 +163,19 @@ export default function DashboardLayout() {
                   {icon} {label}
                 </Link>
               ))}
+
+              {/* Admin Menu (Mobile) */}
+              {isAdmin && (
+                <Link
+                  to="/admin/panduan"
+                  className={`sidebar-item ${location.pathname.includes('/admin/panduan') ? 'active' : ''}`}
+                  style={{ marginTop: '8px', borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  📖 Panduan Web
+                </Link>
+              )}
+
               <button
                 onClick={() => { setMenuOpen(false); handleLogout(); }}
                 className="sidebar-item"
