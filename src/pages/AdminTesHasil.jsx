@@ -135,7 +135,9 @@ export default function AdminTesHasil() {
     XLSX.utils.book_append_sheet(workbook, ws2, "Hasil Seminar (Offline)");
 
     const dateLabel = dateFrom || dateTo ? `_${dateFrom || 'awal'}_sd_${dateTo || 'akhir'}` : '';
-    XLSX.writeFile(workbook, `Rekap_Hasil_Tes${dateLabel}.xlsx`);
+    const testLabel = filterType === 'all' ? 'Semua_Tes' : filterType.replace(/\s+/g, '_');
+    const sourceLabel = activeSource === 'online' ? 'Web' : 'Seminar';
+    XLSX.writeFile(workbook, `Rekap_Hasil_${testLabel}_${sourceLabel}${dateLabel}.xlsx`);
   };
 
   const loading = onlineLoading || offlineLoading;

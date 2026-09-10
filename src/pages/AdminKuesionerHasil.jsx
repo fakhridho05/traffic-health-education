@@ -96,7 +96,10 @@ export default function AdminKuesionerHasil() {
     });
 
     const dateLabel = dateFrom || dateTo ? `_${dateFrom || 'awal'}_sd_${dateTo || 'akhir'}` : '';
-    XLSX.writeFile(workbook, `Rekap_Kuesioner${dateLabel}.xlsx`);
+    const kuesionerLabel = selectedKuesioner === 'all' 
+      ? 'Semua_Kuesioner' 
+      : (kuesionerList.find(k => k.id === selectedKuesioner)?.title || selectedKuesioner).replace(/\s+/g, '_');
+    XLSX.writeFile(workbook, `Rekap_${kuesionerLabel}${dateLabel}.xlsx`);
   };
 
   if (responsesLoading || kuesionerLoading) {
