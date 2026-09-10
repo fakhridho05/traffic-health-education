@@ -17,6 +17,7 @@ export function useTestResults() {
         arr.push({
           id: doc.id,
           ...data,
+          dateObj: data.createdAt ? data.createdAt.toDate() : new Date(),
           dateStr: data.createdAt ? data.createdAt.toDate().toLocaleString('id-ID', {
             day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
           }) : 'Baru saja'

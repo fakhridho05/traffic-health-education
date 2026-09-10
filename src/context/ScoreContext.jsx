@@ -59,7 +59,7 @@ export function ScoreProvider({ children }) {
     }
   };
 
-  const saveTestResult = async (type, score) => {
+  const saveTestResult = async (type, score, answersData = {}) => {
     if (!user) return;
     try {
       import('firebase/firestore').then(({ collection, addDoc, serverTimestamp }) => {
@@ -68,6 +68,7 @@ export function ScoreProvider({ children }) {
           userName: userProfile?.namaIbu || 'Tanpa Nama',
           type: type,
           score: score,
+          answers: answersData,
           createdAt: serverTimestamp()
         });
       });
@@ -76,16 +77,16 @@ export function ScoreProvider({ children }) {
     }
   };
 
-  const setPreTestScore = async (score) => {
+  const setPreTestScore = async (score, answers = {}) => {
     setPreTestScoreState(score);
     await saveProgress({ preTestScore: score });
-    await saveTestResult('Pre-Test', score);
+    await saveTestResult('Pre-Test', score, answers);
   };
 
-  const setPostTestScore = async (score) => {
+  const setPostTestScore = async (score, answers = {}) => {
     setPostTestScoreState(score);
     await saveProgress({ postTestScore: score });
-    await saveTestResult('Post-Test', score);
+    await saveTestResult('Post-Test', score, answers);
   };
 
   const markModuleCompleted = async (moduleId) => {

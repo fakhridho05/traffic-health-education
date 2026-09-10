@@ -44,7 +44,18 @@ export default function PostTest() {
     });
 
     const percentage = Math.round((correctCount / QUESTIONS.length) * 100);
-    setPostTestScore(percentage);
+
+    // Build detailed answers data
+    const answersData = {};
+    QUESTIONS.forEach(q => {
+      answersData[q.question] = {
+        jawaban: q.options[answers[q.id]],
+        benar: q.options[q.correctAnswer],
+        status: answers[q.id] === q.correctAnswer ? 'Benar' : 'Salah'
+      };
+    });
+
+    setPostTestScore(percentage, answersData);
     setShowResult(true);
   };
 

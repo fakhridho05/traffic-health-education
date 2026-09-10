@@ -8,12 +8,31 @@ export default function AdminKuesionerHasil() {
   const { responses, loading: responsesLoading } = useKuesionerResponses();
   const { kuesionerList, loading: kuesionerLoading } = useKuesioner();
   const [selectedKuesioner, setSelectedKuesioner] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
-  // Filter responses based on selected kuesioner
+  // Filter responses
   const filteredResponses = useMemo(() => {
-    if (selectedKuesioner === 'all') return responses;
-    return responses.filter(r => r.kuesionerId === selectedKuesioner);
-  }, [responses, selectedKuesioner]);
+    let data = responses;
+    if (selectedKuesioner !== 'all') {
+      data = data.filter(r => r.kuesionerId === selectedKuesioner);
+    }
+    if (dateFrom) {
+      const from = new Date(dateFrom); from.setHours(0,0,0,0);
+      data = data.filter(r => {
+        const d = r.createdAt ? r.createdAt.toDate() : new Date();
+        return d >= from;
+      });
+    }
+    if (dateTo) {
+      const to = new Date(dateTo); to.setHours(23,59,59,999);
+      data = data.filter(r => {
+        const d = r.createdAt ? r.createdAt.toDate() : new Date();
+        return d <= to;
+      });
+    }
+    return data;
+  }, [responses, selectedKuesioner, dateFrom, dateTo]);
 
   const handleDownloadExcel = () => {
     if (filteredResponses.length === 0) {
@@ -21,42 +40,63 @@ export default function AdminKuesionerHasil() {
       return;
     }
 
-    // Prepare data for Excel
-    const excelData = filteredResponses.map((r, index) => {
-      // Base row data
-      const row = {
-        'No': index + 1,
-        'Waktu Pengisian': r.dateStr,
-        'Nama Responden': r.userName,
-        'ID User': r.userId,
-        'Kuesioner': r.kuesionerTitle,
-      };
+    const workbook = XLSX.utils.book_new();
 
-      // Add all answers as columns
-      if (r.answers) {
-        Object.entries(r.answers).forEach(([key, val]) => {
-          // Key might be an index (0, 1, 2) or a string id (nama_ibu). 
-          // Make it look slightly better:
-          const colName = isNaN(key) ? `Jawaban: ${key}` : `Pertanyaan ${parseInt(key) + 1}`;
-          row[colName] = val;
-        });
-      }
-
-      return row;
+    // Group by kuesioner type for separate sheets
+    const grouped = {};
+    filteredResponses.forEach(r => {
+      const title = r.kuesionerTitle || 'Lainnya';
+      if (!grouped[title]) grouped[title] = [];
+      grouped[title].push(r);
     });
 
-    // Create workbook and worksheet
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Hasil Kuesioner");
+    Object.entries(grouped).forEach(([title, items]) => {
+      // Find matching kuesioner definition from kuesionerList
+      const kDef = kuesionerList.find(k => k.title === title);
 
-    // Generate filename
-    const filename = selectedKuesioner === 'all' 
-      ? 'Semua_Hasil_Kuesioner.xlsx' 
-      : `Hasil_Kuesioner_${selectedKuesioner}.xlsx`;
+      const excelData = items.map((r, index) => {
+        const row = {
+          'No': index + 1,
+          'Waktu Pengisian': r.dateStr,
+          'Nama Responden': r.userName,
+          'ID User': r.userId,
+        };
 
-    // Download file
-    XLSX.writeFile(workbook, filename);
+        // Add all answers with proper question labels
+        if (r.answers && kDef) {
+          if (kDef.type === 'form' && kDef.fields) {
+            kDef.fields.forEach((field) => {
+              row[field.label] = r.answers[field.id] || '-';
+            });
+          } else if (kDef.type === 'likert' && kDef.questions) {
+            kDef.questions.forEach((q, qi) => {
+              row[`${qi+1}. ${q.substring(0, 80)}`] = r.answers[qi] || r.answers[String(qi)] || '-';
+            });
+          } else if (kDef.type === 'multiple_choice' && kDef.questions) {
+            kDef.questions.forEach((q, qi) => {
+              const qText = q.q || q.question || `Pertanyaan ${qi+1}`;
+              row[`${qi+1}. ${qText.substring(0, 80)}`] = r.answers[qi] || r.answers[String(qi)] || '-';
+            });
+          }
+        } else if (r.answers) {
+          // Fallback: just dump answers as columns
+          Object.entries(r.answers).forEach(([key, val]) => {
+            const colName = isNaN(key) ? `Jawaban: ${key}` : `Pertanyaan ${parseInt(key) + 1}`;
+            row[colName] = val;
+          });
+        }
+
+        return row;
+      });
+
+      // Sanitize sheet name (max 31 chars, no special chars)
+      const sheetName = title.substring(0, 31).replace(/[\\\/\?\*\[\]]/g, '');
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      XLSX.utils.book_append_sheet(workbook, ws, sheetName);
+    });
+
+    const dateLabel = dateFrom || dateTo ? `_${dateFrom || 'awal'}_sd_${dateTo || 'akhir'}` : '';
+    XLSX.writeFile(workbook, `Rekap_Kuesioner${dateLabel}.xlsx`);
   };
 
   if (responsesLoading || kuesionerLoading) {
@@ -71,7 +111,7 @@ export default function AdminKuesionerHasil() {
             &lt; Kembali ke Kelola Kuesioner
           </Link>
           <h1 style={{ fontSize: '2rem', color: '#18312a', margin: 0 }}>📊 Hasil Kuesioner</h1>
-          <p style={{ color: '#666', fontSize: '0.95rem', marginTop: '4px' }}>Data isian kuesioner dari seluruh pengguna</p>
+          <p style={{ color: '#666', fontSize: '0.95rem', marginTop: '4px' }}>Data isian kuesioner lengkap dari seluruh pengguna</p>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -94,9 +134,31 @@ export default function AdminKuesionerHasil() {
               boxShadow: '0 2px 5px rgba(24,128,78,0.3)'
             }}
           >
-            ⬇️ Download Excel
+            ⬇️ Download Excel (Lengkap)
           </button>
         </div>
+      </div>
+
+      {/* Date Filter */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center', background: '#f8faf9', padding: '14px 16px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+        <span style={{ fontWeight: 600, color: '#555', fontSize: '0.9rem' }}>📅 Filter Tanggal:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <label style={{ fontSize: '0.85rem', color: '#666' }}>Dari</label>
+          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+            style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.85rem', outline: 'none' }} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <label style={{ fontSize: '0.85rem', color: '#666' }}>Sampai</label>
+          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+            style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.85rem', outline: 'none' }} />
+        </div>
+        {(dateFrom || dateTo) && (
+          <button onClick={() => { setDateFrom(''); setDateTo(''); }}
+            style={{ padding: '8px 14px', borderRadius: '8px', background: '#fee2e2', color: '#991b1b', border: 'none', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}
+          >
+            ✕ Reset
+          </button>
+        )}
       </div>
 
       <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #eaeaea', overflow: 'hidden' }}>
@@ -141,7 +203,7 @@ export default function AdminKuesionerHasil() {
         
         {filteredResponses.length > 0 && (
           <div style={{ padding: '16px', borderTop: '1px solid #eee', background: '#fafafa', color: '#666', fontSize: '0.85rem', textAlign: 'center' }}>
-            Total Data: <strong>{filteredResponses.length}</strong> respons. Klik "Download Excel" untuk melihat detail jawaban per pertanyaan.
+            Total Data: <strong>{filteredResponses.length}</strong> respons. Download Excel untuk melihat detail jawaban per pertanyaan.
           </div>
         )}
       </div>

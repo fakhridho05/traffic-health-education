@@ -80,6 +80,16 @@ export default function PublicTest() {
     const percentage = Math.round((correctCount / QUESTIONS.length) * 100);
     setFinalScore(percentage);
 
+    // Build detailed answers data
+    const answersData = {};
+    QUESTIONS.forEach(q => {
+      answersData[q.question] = {
+        jawaban: q.options[answers[q.id]],
+        benar: q.options[q.correctAnswer],
+        status: answers[q.id] === q.correctAnswer ? 'Benar' : 'Salah'
+      };
+    });
+
     // Save to Firestore in separate collection
     try {
       await addDoc(collection(db, 'offline_test_results'), {
@@ -88,6 +98,7 @@ export default function PublicTest() {
         statusAnak: statusAnak === 'punya' ? 'Memiliki Anak' : statusAnak === 'berencana' ? 'Berencana Memiliki Anak' : 'Belum Memiliki Anak',
         type: label,
         score: percentage,
+        answers: answersData,
         source: 'seminar_offline',
         createdAt: serverTimestamp(),
       });
