@@ -11,6 +11,7 @@ export default function LengkapiProfil() {
     namaIbu: '',
     noTelp: '',
     alamat: '',
+    statusAnak: 'punya', // punya | belum | berencana
     namaAnak: '',
     tanggalLahirAnak: '',
     jenisKelaminAnak: '',
@@ -152,94 +153,145 @@ export default function LengkapiProfil() {
         {step === 2 && (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div>
-              <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
-                Nama Lengkap Anak
+              <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '10px', fontSize: '0.9rem' }}>
+                Status Anak
               </label>
-              <input 
-                type="text" name="namaAnak" value={form.namaAnak} onChange={handleChange}
-                placeholder="Masukkan nama lengkap anak"
-                required
-                style={{ 
-                  width: '100%', padding: '14px 16px', borderRadius: '12px', 
-                  border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
-                  transition: 'border 0.3s', boxSizing: 'border-box'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#18804e'}
-                onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
-                Tanggal Lahir Anak
-              </label>
-              <input 
-                type="date" name="tanggalLahirAnak" value={form.tanggalLahirAnak} onChange={handleChange}
-                required
-                style={{ 
-                  width: '100%', padding: '14px 16px', borderRadius: '12px', 
-                  border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
-                  transition: 'border 0.3s', boxSizing: 'border-box'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#18804e'}
-                onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
-                Jenis Kelamin Anak
-              </label>
-              <select 
-                name="jenisKelaminAnak" value={form.jenisKelaminAnak} onChange={handleChange}
-                required
-                style={{ 
-                  width: '100%', padding: '14px 16px', borderRadius: '12px', 
-                  border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
-                  transition: 'border 0.3s', boxSizing: 'border-box', background: 'white'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#18804e'}
-                onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-              >
-                <option value="">Pilih jenis kelamin</option>
-                <option value="Laki-laki">Laki-laki</option>
-                <option value="Perempuan">Perempuan</option>
-              </select>
-            </div>
-            <div style={{ display: 'flex', gap: '15px' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
-                  Berat Lahir (kg)
-                </label>
-                <input 
-                  type="number" step="0.1" name="beratLahir" value={form.beratLahir} onChange={handleChange}
-                  placeholder="Contoh: 3.2"
-                  required
-                  style={{ 
-                    width: '100%', padding: '14px 16px', borderRadius: '12px', 
-                    border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
-                    transition: 'border 0.3s', boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#18804e'}
-                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
-                  Tinggi Lahir (cm)
-                </label>
-                <input 
-                  type="number" step="0.1" name="tinggiLahir" value={form.tinggiLahir} onChange={handleChange}
-                  placeholder="Contoh: 50"
-                  required
-                  style={{ 
-                    width: '100%', padding: '14px 16px', borderRadius: '12px', 
-                    border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
-                    transition: 'border 0.3s', boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#18804e'}
-                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-                />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {[
+                  { value: 'punya', label: '👶 Sudah memiliki anak' },
+                  { value: 'belum', label: '🙅‍♀️ Belum memiliki anak' },
+                  { value: 'berencana', label: '🤰 Berencana memiliki anak' },
+                ].map(opt => (
+                  <label key={opt.value} style={{ 
+                    display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', 
+                    padding: '12px 14px', borderRadius: '12px',
+                    background: form.statusAnak === opt.value ? '#f0fdf4' : '#f9f9f9', 
+                    border: form.statusAnak === opt.value ? '2px solid #18804e' : '2px solid #e0e0e0', 
+                    transition: 'all 0.2s' 
+                  }}>
+                    <input
+                      type="radio"
+                      name="statusAnak"
+                      value={opt.value}
+                      checked={form.statusAnak === opt.value}
+                      onChange={handleChange}
+                      style={{ accentColor: '#18804e', width: '18px', height: '18px' }}
+                    />
+                    <span style={{ color: '#333', fontWeight: form.statusAnak === opt.value ? '600' : '400' }}>{opt.label}</span>
+                  </label>
+                ))}
               </div>
             </div>
+
+            {/* Child data fields - only show when statusAnak === 'punya' */}
+            {form.statusAnak === 'punya' && (
+              <>
+                <div>
+                  <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
+                    Nama Lengkap Anak
+                  </label>
+                  <input 
+                    type="text" name="namaAnak" value={form.namaAnak} onChange={handleChange}
+                    placeholder="Masukkan nama lengkap anak"
+                    required
+                    style={{ 
+                      width: '100%', padding: '14px 16px', borderRadius: '12px', 
+                      border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
+                      transition: 'border 0.3s', boxSizing: 'border-box'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#18804e'}
+                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
+                    Tanggal Lahir Anak
+                  </label>
+                  <input 
+                    type="date" name="tanggalLahirAnak" value={form.tanggalLahirAnak} onChange={handleChange}
+                    required
+                    style={{ 
+                      width: '100%', padding: '14px 16px', borderRadius: '12px', 
+                      border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
+                      transition: 'border 0.3s', boxSizing: 'border-box'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#18804e'}
+                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
+                    Jenis Kelamin Anak
+                  </label>
+                  <select 
+                    name="jenisKelaminAnak" value={form.jenisKelaminAnak} onChange={handleChange}
+                    required
+                    style={{ 
+                      width: '100%', padding: '14px 16px', borderRadius: '12px', 
+                      border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
+                      transition: 'border 0.3s', boxSizing: 'border-box', background: 'white'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#18804e'}
+                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                  >
+                    <option value="">Pilih jenis kelamin</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                </div>
+                <div style={{ display: 'flex', gap: '15px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
+                      Berat Lahir (kg)
+                    </label>
+                    <input 
+                      type="number" step="0.1" name="beratLahir" value={form.beratLahir} onChange={handleChange}
+                      placeholder="Contoh: 3.2"
+                      required
+                      style={{ 
+                        width: '100%', padding: '14px 16px', borderRadius: '12px', 
+                        border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
+                        transition: 'border 0.3s', boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#18804e'}
+                      onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', color: '#555', fontWeight: '600', marginBottom: '8px', fontSize: '0.9rem' }}>
+                      Tinggi Lahir (cm)
+                    </label>
+                    <input 
+                      type="number" step="0.1" name="tinggiLahir" value={form.tinggiLahir} onChange={handleChange}
+                      placeholder="Contoh: 50"
+                      required
+                      style={{ 
+                        width: '100%', padding: '14px 16px', borderRadius: '12px', 
+                        border: '2px solid #e0e0e0', fontSize: '1rem', outline: 'none',
+                        transition: 'border 0.3s', boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#18804e'}
+                      onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Info text for non-punya */}
+            {form.statusAnak !== 'punya' && (
+              <div style={{ 
+                background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', 
+                padding: '16px', textAlign: 'center' 
+              }}>
+                <p style={{ color: '#166534', margin: 0, fontSize: '0.95rem', lineHeight: '1.6' }}>
+                  {form.statusAnak === 'belum' 
+                    ? '✅ Tidak masalah, Bunda! Materi edukasi ini tetap bermanfaat sebagai persiapan di masa depan.'
+                    : '✅ Selamat atas rencana Bunda! Materi edukasi ini akan sangat berguna untuk persiapan menyambut si kecil.'
+                  }
+                </p>
+              </div>
+            )}
 
             <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
               <button type="button" onClick={() => setStep(1)} style={{ 
